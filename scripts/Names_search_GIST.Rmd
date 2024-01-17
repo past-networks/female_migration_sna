@@ -24,6 +24,7 @@ library(jsonlite)
 library(stringi)
 library(sfarrow)
 library(sf)
+library(googlesheets4)
 ```
 
 ```{r dowloading data}
@@ -64,6 +65,14 @@ names <- GISTsmall %>%
 
 #lapply(GISTsmall$lemmata, function(x) x[grepl("Τιμό*", x)])
 unique(map(GISTsmall$lemmata, keep, str_detect, "Τιμό*"))
+
+```
+
+```{r reading in the spreadsheet with names}
+
+gs4_deauth() # uncomment if you have difficulties with Google Drive authentication
+
+data <- read_sheet("https://docs.google.com/spreadsheets/d/1fydnfL8KdvcVJNz1ZpvLq1rKpqBCXtxT_5vChj0wic8/edit?usp=sharing", sheet = "Full")
 
 ```
 
