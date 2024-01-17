@@ -1,0 +1,69 @@
+---
+title: "Cretan migration in context"
+author: 
+- Petra Hermankova^[Aarhus University, Denmark, https://orcid.org/0000-0002-6349-0540]
+date: "`r format(Sys.Date())`"
+output:
+  html_document:
+    theme: united
+    toc: yes
+    toc_float: true
+    number_sections: true
+    toc_depth: 3
+    df_print: paged
+---
+
+# Initial setup
+
+```{r setup, echo=TRUE, message=FALSE, warning = FALSE}
+
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+
+library(tidyverse)
+library(jsonlite)
+library(stringi)
+library(sfarrow)
+library(sf)
+```
+
+```{r dowloading data}
+# getwd() # check you working directory
+dir.create("data")
+dir.create("data/large_data")
+
+# download as a local copy from Zenodo
+#download.file("https://zenodo.org/records/10139110/files/GIST_v1-1.parquet?download=1", "data/large_data/GIST_v1-1.parquet")
+#download.file("https://zenodo.org/records/10139110/files/GIST_v1-1.geojson?download=1", "data/large_data/GIST_v1-1.geojson")
+```
+
+```{r loading data}
+getwd()
+#GIST<- st_read_parquet("data/large_data/GIST_v1-1.parquet")
+
+GIST <- read_sf("../data/large_data/GIST_v1-1.geojson")
+```
+
+
+```{r filtering}
+GISTsmall <- GIST %>% 
+  #filter(not_before > -300 & not_after < -150) # %>% # filtering out undated inscriptions, including our inscription
+  #filter(region_sub_id == 1688) # %>% # region Ionia as defined by PHI, also other cities
+  #filter(metadata == str_subset(metadata, "Milet*")) # %>% # search in raw metadata text, producing false positives
+  #filter(urban_context_city %in% "Miletus") # %>% # urban context Miletus, based on 5 km buffer around Miletos, Hanson's dataset
+  filter(polis_context_name %in% "Miletos") # %>% # polis context Miletos, based on Hansen's inventory of poleis
+  
+```
+
+```{r searching for names in text}
+names <- GISTsmall %>% 
+  filter(clean_text_interpretive_word %in% str_subset(GISTsmall$clean_text_interpretive_word, "Τιμό*"))
+```
+
+
+```{r searching for names in lemmata}
+
+#lapply(GISTsmall$lemmata, function(x) x[grepl("Τιμό*", x)])
+unique(map(GISTsmall$lemmata, keep, str_detect, "Τιμό*"))
+
+```
+
